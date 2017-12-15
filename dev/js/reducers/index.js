@@ -1,15 +1,33 @@
 import {combineReducers} from 'redux';
-import UserReducer from './reducer-users';
-import ActiveUserReducer from './reducer-active-user';
 
-/*
- * We combine all reducers into a single object before updated data is dispatched (sent) to store
- * Your entire applications state (store) is just whatever gets returned from all your reducers
- * */
+const adv_list_reducer = (state={adv_list:[]}, action) => {
+    let current_adventures = state.adv_list.slice(0)
+    switch(action.type) {
+        case "ADD_ADVENTURE":
+            current_adventures.push(action.payload)
+            return {...state, adv_list:current_adventures}
+        case "REMOVE_ADVENTURE":
+            let adventure_index = current_adventures.indexOf(action.adventure)
+            current_adventures.splice(adventure_index, 1)
+            return {...state, adv_list:current_adventures}
+        case "GET_ADVENTURES":
+            return {...state, adv_list:action.adventures}
+        default:
+            return state
+    }
+}
+
+const active_user_reducer = (state={active_user:{}, token: ''}, action) => {
+    switch(action.type) {
+        case "SWITCH_USER":
+            return {...state, active_user:action.user, token: action.token}
+        default:
+            return state
+    }
+}
 
 const allReducers = combineReducers({
-    users: UserReducer,
-    activeUser: ActiveUserReducer
+  adv_list_reducer, active_user_reducer
 });
 
-export default allReducers
+export default allReducers;
