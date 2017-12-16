@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
-import {add_adventure, remove_adventure} from '../actions/index'
+import {add_adventure, remove_adventure, follow_adventure} from '../actions/index'
 // import {selectUser} from '../actions/index';
 
-const AdventureList = ({adv_list, active_user, add_adventure, remove_adventure}) => {
+const AdventureList = ({adv_list, active_user, add_adventure, remove_adventure, follow_adventure}) => {
   let input
   console.log(active_user)
   return (
@@ -13,8 +13,12 @@ const AdventureList = ({adv_list, active_user, add_adventure, remove_adventure})
         {adv_list.map((adventure) => {
           return (
             <div key={adventure.title}>
-              <li>{adventure.title} by {adventure.postedBy.profile.firstName}</li>
-              <button type="button" onClick={() => remove_adventure(adventure)}>Remove</button>
+              <li>{adventure.title} by {adventure.postedBy.profile.firstName}, followed by: {adventure.followedBy.map((user) => { if (user.profile != undefined) {return (<p style={{display: 'inline-block'}}>{user.profile.firstName}</p>)}})}</li>
+              {active_user.email != undefined ?
+                <div>
+                  <button type="button" disabled={adventure.postedBy.email != active_user.email} onClick={() => remove_adventure(adventure)}>Remove</button>
+                  <button type="button" disabled={adventure.followedBy.find((user) => user.email == active_user.email) != undefined} onClick={() => follow_adventure(adventure, active_user)}>Follow</button>
+                </div> : ""}
             </div>
           )
         })}
@@ -54,7 +58,8 @@ export default connect(
       return {
         get_adventures: () => dispatch(get_adventures()),
         add_adventure: (adventure, active_user) => dispatch(add_adventure(adventure, active_user)),
-        remove_adventure: (adventure) => dispatch(remove_adventure(adventure))
+        remove_adventure: (adventure) => dispatch(remove_adventure(adventure)),
+        follow_adventure: (adventure, active_user) => dispatch(follow_adventure(adventure, active_user))
       }
     }
 )(AdventureList)

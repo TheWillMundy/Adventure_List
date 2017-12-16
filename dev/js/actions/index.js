@@ -65,6 +65,19 @@ export const remove_adventure = (adventure) => {
   }
 }
 
+export const follow_adventure = (adventure, active_user) => {
+  return (dispatch) => {
+    let payload = {email: active_user.email}
+    console.log(active_user)
+    resource('POST', 'adventures/' + adventure._id, payload).then((result) => {
+      return dispatch({
+        type: "FOLLOW_ADVENTURE",
+        adventure: result
+      })
+    })
+  }
+}
+
 // Login Methods
 export const login_user = (email, password) => {
   return (dispatch) => {
