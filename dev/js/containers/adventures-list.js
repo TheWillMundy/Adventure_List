@@ -12,92 +12,39 @@ import AddCircle from 'material-ui/svg-icons/content/add-circle';
 import CheckCircle from 'material-ui/svg-icons/action/check-circle';
 
 const AdventureList = ({adv_list, active_user, add_adventure, remove_adventure, follow_adventure, unfollow_adventure}) => {
+  const isActiveUser = (active_user) => {
+    if (active_user.firstName != undefined) {
+      return (
+        <form
+          onSubmit={e => {
+            e.preventDefault()
+            if (!input.value.trim()) {
+              return
+            }
+            add_adventure(input.value, active_user)
+            input.value = ''
+          }}>
+          <input ref={adventure => {input = adventure}}/>
+          <button type="submit">Add Adventure</button>
+        </form>
+      )
+    }
+    else {
+      return (
+        <span> Please sign in before adding adventures. </span>
+      )
+    }
+  }
   let input
-  console.log(active_user)
   return (
     <div style={{display: 'inline-block'}}>
-      <FollowButton follow={true} active_user={active_user} adv_list={adv_list} remove_adventure={remove_adventure} follow_adventure={follow_adventure} unfollow_adventure={unfollow_adventure} />
-      {active_user.firstName != undefined ?
-      <form
-        onSubmit={e => {
-          e.preventDefault()
-          if (!input.value.trim()) {
-            return
-          }
-          add_adventure(input.value, active_user)
-          input.value = ''
-        }}>
-        <input ref={adventure => {input = adventure}}/>
-        <button type="submit">Add Adventure</button>
-      </form> : <span> Please sign in before adding adventures. </span> }
+      <ListOfAdventures follow={true} active_user={active_user} adv_list={adv_list} remove_adventure={remove_adventure} follow_adventure={follow_adventure} unfollow_adventure={unfollow_adventure} />
+      {isActiveUser(active_user)}
     </div>
   )
 }
 
-/*
-<ul>
-  {adv_list.map((adventure) => {
-    return (
-      <div key={adventure.title}>
-        <li>{adventure.title} by {adventure.postedBy.profile.firstName}, followed by: {adventure.followedBy.map((user) => { if (user.profile != undefined) {return (<p style={{display: 'inline-block'}}>{user.profile.firstName}</p>)}})}</li>
-        {active_user.email != undefined ?
-          <div>
-            <button type="button" disabled={adventure.postedBy.email != active_user.email} onClick={() => remove_adventure(adventure)}>Remove</button>
-            <button type="button" disabled={adventure.followedBy.find((user) => user.email == active_user.email) != undefined} onClick={() => follow_adventure(adventure, active_user)}>Follow</button>
-          </div> : ""}
-      </div>
-    )
-  })}
-</ul>
-*/
-// const FollowedByButton = ({follower_list}) => {
-//   return (
-//     {follower_list.map((user) => {
-//       return (
-//         <ListItem
-//           key={user.profile.firstName}
-//           primaryText={user.profile.firstName}
-//           />
-//       )
-//     })}
-//   )
-// }
-
-// const FollowButton = ({}) => {
-//   const isLoggedIn = (active_user) => {
-//     if (active_user.email == undefined) {
-//       return false;
-//     }
-//     return true;
-//   }
-//
-//   const isPosterOrFollowing = (adventure, active_user) => {
-//     if (adventure.postedBy.email == active_user.email) {
-//       return ( <IconButton style={{display: 'inline-flex'}} disabled={adventure.postedBy.email != active_user.email} onClick={() => remove_adventure(adventure)}><RemoveCircle /></IconButton> )
-//     }
-//     else {
-//       if (isLoggedIn(active_user)) {
-//         if (adventure.followedBy.find(user) => user.email == active_user.email) == undefined) {
-//           return (<IconButton style={{display: 'inline-flex'}} onClick={() => follow_adventure(adventure, active_user)}><AddCircle /></IconButton>)
-//         }
-//         return (<IconButton style={{display: 'inline-flex'}} onClick={() => unfollow_adventure(adventure, active_user)}><CheckCircle /></IconButton>)
-//       }
-//       return ""
-//     }
-//   }
-//   return (
-//     {adv_list.map((adventure) => {
-//       return (
-//         <div style={{display: 'flex'}}>
-//           {isPosterOrFollowing(adventure, active_user)}
-//
-//         </div>
-//       )
-//     })}
-//   )
-// }
-
-const FollowButton = ({follow, active_user, adv_list, follow_adventure, remove_adventure, unfollow_adventure}) => {
+const ListOfAdventures = ({follow, active_user, adv_list, follow_adventure, remove_adventure, unfollow_adventure}) => {
   const isLoggedIn = (active_user) => {
     if (active_user.email == undefined) {
       return false;

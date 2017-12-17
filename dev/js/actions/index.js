@@ -2,17 +2,18 @@ import fetch from 'isomorphic-fetch';
 
 export const url =  'http://localhost:8000';
 
-export const resource = (method, endpoint, payload) => {
+export const resource = (method, endpoint, payload, jwt) => {
     // console.log("THE ENDPOINT: " + endpoint + "\n" + "THE PAYLOAD: " + payload + "\n" + "THE METHOD: " + method)
     const options =  {
         method,
         credentials: 'include',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': jwt
         }
     }
     if (payload) options.body = JSON.stringify(payload)
-
+    // if (jwt) options.headers = {...options.headers, 'Authorization': jwt}
     // console.log('The options for ', endpoint, options)
     // console.log('The url: ',`${url}/${endpoint}`)
     return fetch(`${url}/${endpoint}`, options)
@@ -30,7 +31,7 @@ export const resource = (method, endpoint, payload) => {
 
 export const get_adventures = () => {
   return (dispatch) => {
-    resource('GET', 'adventures/').then((adventures) => {
+    resource('GET', 'all_adventures/').then((adventures) => {
       console.log(adventures)
       return dispatch({
         type: "GET_ADVENTURES",
@@ -43,7 +44,7 @@ export const get_adventures = () => {
 export const add_adventure = (adventure, user) => {
   return (dispatch) => {
     let payload = {"title": adventure, "email": user.email}
-    resource('POST', 'adventures', payload).then((result) => {
+    resource('POST', 'adventures', payload, localStorage.getItem('id_token')).then((result) => {
       // payload = {...payload, "_id": id, "poster": user.firstName}
       payload = result
       return dispatch({
@@ -56,7 +57,8 @@ export const add_adventure = (adventure, user) => {
 
 export const remove_adventure = (adventure) => {
   return (dispatch) => {
-    resource('DELETE', 'adventures/' + adventure._id).then((result) => {
+    let jwt = localStorage.getItem('id_token')
+    resource('DELETE', 'adventures/' + adventure._id, {jwt}).then((result) => {
       return dispatch({
         type: "REMOVE_ADVENTURE",
         adventure
@@ -69,7 +71,7 @@ export const follow_adventure = (adventure, active_user) => {
   return (dispatch) => {
     let payload = {email: active_user.email}
     console.log(active_user)
-    resource('POST', 'adventures/' + adventure._id, payload).then((result) => {
+    resource('POST', 'adventures/' + adventure._id, payload, localStorage.getItem('id_token')).then((result) => {
       return dispatch({
         type: "FOLLOW_ADVENTURE",
         adventure: result
@@ -81,7 +83,7 @@ export const follow_adventure = (adventure, active_user) => {
 export const unfollow_adventure = (adventure, active_user) => {
   return (dispatch) => {
     let payload = {email: active_user.email}
-    resource('POST', 'adventures/unfollow/' + adventure._id, payload).then((result) => {
+    resource('POST', 'adventures/unfollow/' + adventure._id, payload, localStorage.getItem('id_token')).then((result) => {
       return dispatch({
         type: "UNFOLLOW_ADVENTURE",
         adventure: result
@@ -104,6 +106,17 @@ export const login_user = (email, password) => {
     })
   }
 }
+
+// export const request_protected_info = (token) => {
+//   return (dispatch) => {
+//     resource('GET', 'protected', {jwt: token}).then((result) => {
+//       console.log(result)
+//       return dispatch({
+//         type: "TEST_USER"
+//       })
+//     })
+//   }
+// }
 
 // export const switch_user = (user) => {
 //   return (dispatch) => {
